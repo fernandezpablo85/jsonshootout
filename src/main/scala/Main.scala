@@ -9,7 +9,7 @@ case class More(int: Double, string: String)
 object Main extends App {
 
   val example = Example("foo", 1, Other("bar \"with\" quotes ", List(More(1 / 3, "one"), More(2.0, "two"))))
-  val Alternatives = List(LiftJson, SprayJson, PlayJson)
+  val Alternatives = List(LiftJson, SprayJson, PlayJson, Json4SNative, Json4SJackson)
   val unit = MICROSECONDS
   val iterations = 1000000
 
@@ -114,18 +114,23 @@ object PlayJson extends JsonLibrary {
 object Json4SNative extends JsonLibrary {
   import org.json4s._
   import org.json4s.native.JsonMethods._
+  import org.json4s.native.Serialization
 
+  implicit val formats = DefaultFormats
   val name = "Json4SNative"
-  def serialize(ex: Example) = ???
-  def deserialize(json: String) = ???
+  def serialize(ex: Example) = Serialization.write(ex)
+  def deserialize(json: String) = parse(json).extract[Example]
 }
 
 // Json4SJackson.
 object Json4SJackson extends JsonLibrary {
   import org.json4s._
   import org.json4s.jackson.JsonMethods._
+  import org.json4s.jackson.Serialization
+
+  implicit val formats = DefaultFormats
 
   val name = "Json4SJackson"
-  def serialize(ex: Example) = ???
-  def deserialize(json: String) = ???
+  def serialize(ex: Example) = Serialization.write(ex)
+  def deserialize(json: String) = parse(json).extract[Example]
 }
