@@ -8,6 +8,8 @@ object Mark {
   def measure(iterations: Int, unit: TimeUnit = MICROSECONDS)(thunk: => Any): Array[Double] = {
     val times = new ArrayBuilder.ofDouble
 
+    System.gc()
+    Thread.sleep(1000)
     // warm up.
     val warmup = ceil(iterations / 10).toInt
     for (_ <- (1 to warmup)) {
