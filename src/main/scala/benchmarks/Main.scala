@@ -9,7 +9,7 @@ case class More(int: Double, string: String)
 object Main extends App {
 
   val example = Example("foo", 1, Other("bar \"with\" quotes ", List(More(1 / 3, "one"), More(2.0, "two"))))
-  val Alternatives = List(LiftJson, SprayJson, PlayJson, Json4SNative, Json4SJackson)
+  val Alternatives = List(SprayJson, LiftJson, CirceJawn, CirceJackson, Json4SJackson, Json4SNative, PlayJson)
   val unit = MICROSECONDS
   val iterations = 1000000
 
@@ -71,9 +71,8 @@ trait JsonLibrary {
 
 // Lift.
 object LiftJson extends JsonLibrary {
-  import net.liftweb.json.Serialization
   import net.liftweb.json.JsonParser._
-  import net.liftweb.json.NoTypeHints
+  import net.liftweb.json.{NoTypeHints, Serialization}
 
   val name = "LiftJson"
   implicit val formats = Serialization.formats(NoTypeHints)
@@ -93,13 +92,12 @@ object SprayJson extends JsonLibrary {
 
   val name = "Spray"
   def serialize(ex: Example) = ex.toJson.compactPrint
-  def deserialize(json: String) = json.asJson.convertTo[Example]
+  def deserialize(json: String) = json.parseJson.convertTo[Example]
 }
 
 // Play.
 object PlayJson extends JsonLibrary {
   import play.api.libs.json._
-  import play.api.libs.functional._
 
   implicit val MoreFormat = Json.format[More]
   implicit val OtherFormat = Json.format[Other]
@@ -133,4 +131,24 @@ object Json4SJackson extends JsonLibrary {
   val name = "Json4SJackson"
   def serialize(ex: Example) = Serialization.write(ex)
   def deserialize(json: String) = parse(json).extract[Example]
+}
+
+object CirceJawn extends JsonLibrary {
+  import io.circe.jawn._
+  import io.circe.syntax._
+  import io.circe.generic.auto._
+
+  val name = "CirceJawn"
+  def serialize(ex: Example) = ex.asJson.noSpaces
+  def deserialize(json: String) = decode[Example](json).getOrElse(sys.error("Deserialization failure"))
+}
+
+object CirceJackson extends JsonLibrary {
+  import io.circe.jackson._
+  import io.circe.syntax._
+  import io.circe.generic.auto._
+
+  val name = "CirceJackson"
+  def serialize(ex: Example) = ex.asJson.noSpaces
+  def deserialize(json: String) = decode[Example](json).getOrElse(sys.error("Deserialization failure"))
 }
