@@ -1,8 +1,8 @@
 package benchmarks
 
 import scala.collection.mutable.ArrayBuilder
-import scala.math.ceil
 import scala.concurrent.duration._
+import scala.math.ceil
 
 object Mark {
   def measure(iterations: Int, unit: TimeUnit = MICROSECONDS)(thunk: => Any): Array[Double] = {
